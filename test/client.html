@@ -1,0 +1,25 @@
+<html>
+<head>
+	<script src="socket.io.min.js"></script>
+	<script src="jquery-1.9.0.min.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+	var socket = io.connect("http://127.0.0.1:9000");
+
+	socket.on('connect', function(data){
+		var item = $('<li/>').text("Connected to rattle!");
+		item.appendTo("#rattle-log");
+	});
+
+	socket.on('message', function(data){
+		var item = $('<li/>').text("Rattle: " + data);
+		item.appendTo("#rattle-log");
+	});
+</script>
+
+<h2>Rattle log</h2>
+<ul id="rattle-log">
+</ul>
+</body>
+</html>

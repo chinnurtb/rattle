@@ -1,0 +1,12 @@
+{application, rattle,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { rattle_app, []}},
+  {env, []}
+ ]}.

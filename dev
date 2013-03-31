@@ -1,0 +1,4 @@
+#!/bin/bash
+./rebar clean
+./rebar compile
+erl -pa deps/*/ebin ebin -s lager -s rattle_app -config app

@@ -2,7 +2,7 @@
 ======
 
 Rattle is a lightweight Socket.io server written in Erlang. You can easily add custom message handling logic to it and you don't have to know how to write even single line in Erlang. 
-Just start Rattle and integrate it with your application using simple HTTP rest API.
+Just start Rattle and integrate it with your own backend using simple HTTP rest API.
 
 ## First demo
 ======

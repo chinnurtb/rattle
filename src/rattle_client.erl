@@ -39,8 +39,8 @@ push(Pid, Message) ->
 
 disconnected({connect, ReplyChannel}, StateData) ->
 	NewState = StateData#state{reply_channel = ReplyChannel},
-	Message = #out_imsg{level = socketio,
-						type  = connected},
+	Message = #imsg{level = socketio,
+					type  = connected},
 	ReplyChannel(Message),
 	{next_state, connected, NewState}.
 
@@ -51,7 +51,6 @@ connected(_Event, StateData) ->
 %% Callbacks
 %% ===================================================================
 init({Sid, BrokerPid}) ->
-	lager:debug("Client process initialized for sid ~s", [Sid]),
 	process_flag(trap_exit, true),
 	{ok, disconnected, #state{
 							  sid = Sid,
@@ -60,13 +59,12 @@ init({Sid, BrokerPid}) ->
 
 handle_event({heartbeat, ReplyChannel}, StateName, StateData) ->
 	NewState = StateData#state{reply_channel = ReplyChannel},
-	lager:info("Client received hearteat! Yeah!"),
 	{next_state, StateName, NewState};
 
 handle_event({push, Message}, StateName, StateData) when is_list(Message) ->
 	ReplyChannel = StateData#state.reply_channel,
-	ReplyChannel(#out_imsg_batch{level = socketio,
-								 payload = Message}),
+	ReplyChannel(#imsg_batch{level = socketio,
+							 payload = Message}),
 	{next_state, StateName, StateData};
 handle_event({push, Message}, StateName, StateData) ->
 	ReplyChannel = StateData#state.reply_channel,
@@ -82,11 +80,10 @@ handle_info({'EXIT', Pid, _Reason}, _StateName, StateData)
 	{stop, normal, StateData};
 
 handle_info(Info, StateName, StateData) ->
-	lager:debug("Client received info: ~p", [Info]),
 	{next_state, StateName, StateData}.
 
 terminate(_Reason, _StateName, _StateData) ->
-	lager:debug("Client process terminated").
+	ok.
 
 code_change(_OldVsn, StateName, StateData, _Extra) ->
     {ok, StateName, StateData}.

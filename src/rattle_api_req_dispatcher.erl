@@ -53,9 +53,9 @@ http_loop(Request) ->
 				% Temporary for demonstration purposes
 				["all"] ->
 					Sids = rattle_router:session_list(),
-					Message = #out_imsg{level = socketio,
-										type  = message,
-										payload = Request:recv_body()},
+					Message = #imsg{level = socketio,
+									type  = message,
+									payload = Request:recv_body()},
 					send_to_all(Sids, Message),
 					rattle_utils:format_api_response(Request, 200, "OK");
 

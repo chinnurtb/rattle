@@ -46,10 +46,10 @@ http_loop(Request) ->
 
 				["socket.io", "1"] ->
 					case rattle_router:login() of
-						Sid when is_binary(Sid) ->
-							Message = #out_imsg{level = socketio,
-												type  = handshake,
-												payload = Sid},
+						Sid when is_list(Sid) ->
+							Message = #imsg{level = socketio,
+											type  = handshake,
+											payload = Sid},
 							Response = rattle_socketio:wrap_message(Message),
 							rattle_utils:format_xhr_response(Request, 200, Response);
 
@@ -77,17 +77,17 @@ http_loop(Request) ->
 xhr_respond(Request, Reentry, DcTimer) ->
 	erlang:cancel_timer(DcTimer),
 	receive 
-		R when R#out_imsg.level == server ->
+		R when R#imsg.level == server ->
 			rattle_utils:format_xhr_response(Request, 500, "Internal error"),
 			exit(normal);
 
-		R when R#out_imsg.level == socketio ->
+		R when R#imsg.level == socketio ->
 			Message = rattle_socketio:wrap_message(R),
 			rattle_utils:format_xhr_response(Request, 200, Message);
 
 		% @TODO Think about it. Level for whole batch?
-		R when R#out_imsg_batch.level == socketio ->
-			Message = rattle_socketio:wrap_batch_message(R#out_imsg_batch.payload),
+		R when R#imsg_batch.level == socketio ->
+			Message = rattle_socketio:wrap_batch_message(R#imsg_batch.payload),
 			rattle_utils:format_xhr_response(Request, 200, Message);
 
 		_ ->

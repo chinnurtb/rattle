@@ -1,16 +1,14 @@
-% Input internal message
--record(in_imsg, {}).
-
-
 % Batch
--record(out_imsg_batch, {
-						 level   = socketio,
-						 payload = []
-						}).
+-record(imsg_batch, {
+					 level   = socketio,
+					 payload = []
+					}).
 
-% Output internal message
--record(out_imsg, {
-				   level   = socketio,
-				   type    = event,
-				   payload = ""
-				  }).
+% Client-server internal message format
+-record(imsg, {
+			   level   	= socketio,
+			   type    	= event,
+			   id	 	= null,
+			   endpoint	= null,
+			   payload  = null
+			  }).

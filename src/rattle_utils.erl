@@ -19,8 +19,7 @@ generate_sid() ->
 	Sid = integer_to_list(Rand)   ++  
 		  integer_to_list(Mega)   ++ 
 		  integer_to_list(Sec)    ++
-		  integer_to_list(Micro),
-	list_to_binary(Sid).
+		  integer_to_list(Micro).
 
 format_api_response(Req, Code, Body) ->
 	Req:respond({Code, [

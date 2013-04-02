@@ -76,16 +76,15 @@ init(Sup) ->
 
 handle_call(login, _From, State) ->
 	Sid = rattle_utils:generate_sid(),
-	LSid = binary_to_list(Sid),
 
 	{ok, ClientBrokerPid} = supervisor:start_child(State#state.broker_sup, 
 												   [Sid, State#state.client_sup]),
 	monitor(process, ClientBrokerPid),
 
-	ets:insert(State#state.sids, {LSid, ClientBrokerPid}),
-	ets:insert(State#state.pids, {ClientBrokerPid, LSid}),
+	ets:insert(State#state.sids, {Sid, ClientBrokerPid}),
+	ets:insert(State#state.pids, {ClientBrokerPid, Sid}),
 
-	lager:info("New client connected at SID: ~s", [Sid]),
+	lager:info("New client connected with SID: ~s", [Sid]),
 	{reply, Sid, State};
 
 handle_call(session_list, _From, State) ->
@@ -121,13 +120,22 @@ handle_cast({heartbeat, Sid, ReplyChannel}, State) ->
 			rattle_client_broker:heartbeat(BrokerPid, ReplyChannel);
 
 		_ ->
-			ReplyChannel(#out_imsg{level = server,
-								   type  = internal_error,
-								   payload = <<"Unrecognized SID">>})
+			ReplyChannel(#imsg{level = server,
+							   type  = internal_error,
+							   payload = <<"Unrecognized SID">>})
 	end,
 	{noreply, State}.
 
-handle_info(_, State) ->
+
+handle_info({'DOWN', MonitorRef, process, BrokerPid, _}, State) ->
+	case ets:lookup(State#state.pids, BrokerPid) of
+		[] -> 
+			ok;
+		[{BrokerPid, Sid}] ->
+			lager:info("Client disconnected SID: ~s", [Sid]),
+			ets:delete(State#state.pids, BrokerPid),
+			ets:delete(State#state.sids, Sid)
+	end,
 	{noreply, State}.
 
 terminate(_Reason, _State) ->

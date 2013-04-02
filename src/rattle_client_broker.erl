@@ -69,8 +69,8 @@ processing(disconnect, StateData) ->
 %% LISTENING state
 %%
 listening(timeout, StateData) ->
-	Noop = #out_imsg{level = socketio,
-					 type  = noop},
+	Noop = #imsg{level = socketio,
+				 type  = noop},
 	rattle_client:push(StateData#state.client_pid, Noop),
 	{next_state, processing, refresh_dc_timer(StateData)};
 
@@ -108,8 +108,6 @@ buffering(disconnect, StateData) ->
 %% Calbacks
 %% ===================================================================
 init({Sid, ClientSup}) ->
-	lager:debug("Broker process initialized for sid ~s", [Sid]),
-
 	{ok, ClientPid} = supervisor:start_child(ClientSup, [Sid, self()]),
 	link(ClientPid),
 	process_flag(trap_exit, true),
@@ -129,11 +127,10 @@ handle_sync_event(_Event, _From, StateName, StateData) ->
     {reply, Reply, StateName, StateData}.
 
 handle_info(Info, StateName, StateData) ->
-	lager:debug("Broker received info: ~p", [Info]),
 	{next_state, StateName, StateData}.
 
 terminate(_Reason, _StateName, _StateData) ->
-	lager:debug("Broker process terminated").
+	ok.
 
 code_change(_OldVsn, StateName, StateData, _Extra) ->
     {ok, StateName, StateData}.
